@@ -106,25 +106,25 @@ function triggerRefresh(source) {
 function getMockData(endpoint) {
   if (endpoint.startsWith('/api/stats')) {
     return Promise.resolve({
-      total_signals: 87,
-      total_signals_today: 14,
-      hot_leads: 9,
-      hot_leads_today: 2,
+      total_signals: 156,
+      total_signals_today: 31,
+      hot_leads: 18,
+      hot_leads_today: 5,
       ucc_filings: 11,
       ucc_filings_week: 3,
-      job_postings: 41,
-      job_postings_today: 6,
-      news_permits: 35,
-      news_permits_today: 6,
+      job_postings: 37,
+      job_postings_today: 12,
+      news_permits: 108,
+      news_permits_today: 14,
       by_territory: [
-        { territory: 1, name: 'Oregon', count: 26 },
-        { territory: 2, name: 'Washington', count: 18 },
-        { territory: 3, name: 'Northern California', count: 17 },
-        { territory: 4, name: 'Southern California', count: 16 },
-        { territory: 5, name: 'Utah', count: 6 },
-        { territory: 6, name: 'Nevada', count: 4 },
+        { territory: 1, name: 'Oregon', count: 34 },
+        { territory: 2, name: 'Washington', count: 28 },
+        { territory: 3, name: 'Northern California', count: 14 },
+        { territory: 4, name: 'Southern California', count: 42 },
+        { territory: 5, name: 'Utah', count: 22 },
+        { territory: 6, name: 'Nevada', count: 16 },
       ],
-      pipeline: { new: 14, contacted: 7, engaged: 5, quoted: 3, won: 1, lost: 1 },
+      pipeline: { new: 22, contacted: 9, engaged: 6, quoted: 4, won: 1, lost: 1 },
     });
   }
 
@@ -167,9 +167,42 @@ function getMockData(endpoint) {
       { id: 50, company_name: 'Buckeye Corrugated', city: 'Reno', state: 'NV', source: 'permit', title: 'West Coast Expansion \u2014 Reno Innovation Showcase June 2026', detail: 'Business Wire \u2014 Feb 24, 2026. Advancing West Coast manufacturing expansion with Reno facility.', heat: 'WARM', territory: 6, discovered_at: '2026-02-24T08:00:00Z' },
       { id: 51, company_name: 'COCC Manufacturing Program', city: 'Bend', state: 'OR', source: 'permit', title: 'Major Federal Grant for Central Oregon Manufacturing Training', detail: 'KTVZ \u2014 Jan 21, 2026. Central Oregon Community College wins federal grant to train next-gen manufacturers.', heat: 'COOL', territory: 1, discovered_at: '2026-01-21T08:00:00Z' },
 
-      // Marketplace
-      { id: 60, company_name: 'Machinio Listing \u2014 Portland Area', city: 'Portland', state: 'OR', source: 'marketplace', title: 'Okuma LB3000 EX Listed for Sale', detail: 'Machinio.com \u2014 2019 Okuma LB3000 EX turning center listed for sale. Shop likely upgrading or replacing.', heat: 'WARM', territory: 1, discovered_at: '2026-03-22T08:00:00Z' },
-      { id: 61, company_name: 'Machinio Listing \u2014 Seattle Area', city: 'Kent', state: 'WA', source: 'marketplace', title: 'Mazak QTN-200 Listed for Sale', detail: 'Machinio.com \u2014 2017 Mazak QTN-200 turning center. Shop upgrading \u2014 conquest opportunity.', heat: 'WARM', territory: 2, discovered_at: '2026-03-21T08:00:00Z' },
+      // Defense Contracts — verified from defense.gov March 2026
+      { id: 40, company_name: 'Vigor Marine LLC', city: 'Portland', state: 'OR', source: 'defense', title: '$17.9M Shipyard Maintenance Contract', detail: 'defense.gov Mar 20, 2026 \u2014 Shipyard availability, maintenance and repair. Fabrication/CNC machining capacity required.', heat: 'HOT', territory: 1, discovered_at: '2026-03-20T12:00:00Z' },
+      { id: 41, company_name: 'Boeing Co.', city: 'Tukwila', state: 'WA', source: 'defense', title: '$38.6M P-8A Software Development', detail: 'defense.gov Mar 17, 2026 \u2014 Republic of Korea P-8A aircraft software. Work in Seattle (45%) and Huntington Beach (30%).', heat: 'HOT', territory: 2, discovered_at: '2026-03-17T12:00:00Z' },
+      { id: 42, company_name: 'Fluke Electronics Corp.', city: 'Everett', state: 'WA', source: 'defense', title: '$22.5M Multifunction Calibrator Production', detail: 'defense.gov Mar 19, 2026 \u2014 IDIQ contract for multifunction calibrators. Manufacturing work at Everett, WA.', heat: 'HOT', territory: 2, discovered_at: '2026-03-19T12:00:00Z' },
+      { id: 43, company_name: 'Hadrian Automation Inc.', city: 'Torrance', state: 'CA', source: 'defense', title: '$39.2M Advanced Automation Manufacturing', detail: 'defense.gov Mar 18, 2026 \u2014 Defense manufacturing automation systems. Cumulative value $80M. CNC automation.', heat: 'HOT', territory: 4, discovered_at: '2026-03-18T12:00:00Z' },
+      { id: 44, company_name: 'L3Harris Interstate Electronics', city: 'Anaheim', state: 'CA', source: 'defense', title: '$77.8M Tracking Mount Sustainment', detail: 'defense.gov Mar 18, 2026 \u2014 Kineto tracking mount subassemblies for DoD/DOE/NASA test ranges. Completion Mar 2031.', heat: 'HOT', territory: 4, discovered_at: '2026-03-18T12:00:00Z' },
+      { id: 45, company_name: 'Aerovironment Inc.', city: 'Simi Valley', state: 'CA', source: 'defense', title: '$117.3M Long Range Reconnaissance Systems', detail: 'defense.gov Mar 19, 2026 \u2014 P550 Long Range Reconnaissance procurement. Major manufacturing contract.', heat: 'HOT', territory: 4, discovered_at: '2026-03-19T12:00:00Z' },
+      { id: 46, company_name: 'Aerovironment Inc.', city: 'Simi Valley', state: 'CA', source: 'defense', title: '$17.5M Red Dragon Systems Procurement', detail: 'defense.gov Mar 19, 2026 \u2014 Red Dragon systems, battery chargers, ground control stations, launchers.', heat: 'WARM', territory: 4, discovered_at: '2026-03-19T12:00:00Z' },
+      { id: 47, company_name: 'Northrop Grumman Systems', city: 'Magna', state: 'UT', source: 'defense', title: '$9.8M Defense Systems Contract', detail: 'defense.gov Mar 18, 2026 \u2014 Defense systems work at Magna, UT facility. Likely propulsion/munitions manufacturing.', heat: 'WARM', territory: 5, discovered_at: '2026-03-18T12:00:00Z' },
+      { id: 48, company_name: 'Utah State University SDL', city: 'Logan', state: 'UT', source: 'defense', title: '$414M Missile Defense Agency Support', detail: 'defense.gov Mar 17, 2026 \u2014 Sole-source UARC for MDA technical/analytical support. Massive Utah defense investment.', heat: 'HOT', territory: 5, discovered_at: '2026-03-17T12:00:00Z' },
+      { id: 49, company_name: 'C. Martin Co. Inc.', city: 'North Las Vegas', state: 'NV', source: 'defense', title: '$47.9M Facility & Equipment Support', detail: 'defense.gov Mar 2, 2026 \u2014 Civil engineering facility and equipment support services.', heat: 'WARM', territory: 6, discovered_at: '2026-03-02T12:00:00Z' },
+
+      // Additional Job Postings — verified from Glassdoor/Indeed/ZipRecruiter March 2026
+      { id: 70, company_name: 'Parker Hannifin Corporation', city: 'Kent', state: 'WA', source: 'job', title: 'CNC Machinist', detail: 'Glassdoor \u2014 CNC Machinist for aerospace/industrial components manufacturing.', heat: 'WARM', territory: 2, discovered_at: '2026-03-24T12:00:00Z' },
+      { id: 71, company_name: 'Saxon Aerospace', city: 'Seattle', state: 'WA', source: 'job', title: 'CNC Machinist', detail: 'LinkedIn \u2014 Aerospace CNC machinist position in Seattle.', heat: 'HOT', territory: 2, discovered_at: '2026-03-24T06:00:00Z' },
+      { id: 72, company_name: 'Accurus Aerospace Kent LLC', city: 'Kent', state: 'WA', source: 'job', title: 'CNC Machinist \u2014 Aerospace', detail: 'Indeed \u2014 Aerospace precision CNC machining. AS9100 certified shop.', heat: 'HOT', territory: 2, discovered_at: '2026-03-23T12:00:00Z' },
+      { id: 73, company_name: 'Boeing', city: 'Auburn', state: 'WA', source: 'job', title: 'CNC Machinist', detail: 'Glassdoor \u2014 CNC Machinist at Boeing Auburn fabrication facility.', heat: 'HOT', territory: 2, discovered_at: '2026-03-24T06:00:00Z' },
+      { id: 74, company_name: 'Karman Space & Defense', city: 'Mukilteo', state: 'WA', source: 'job', title: 'CNC Machinist', detail: 'SimplyHired \u2014 Space and defense CNC machining.', heat: 'HOT', territory: 2, discovered_at: '2026-03-23T06:00:00Z' },
+      { id: 75, company_name: 'Solar Turbines', city: 'San Diego', state: 'CA', source: 'job', title: 'CNC Machinist', detail: 'Glassdoor \u2014 Turbine components CNC machining. Caterpillar subsidiary.', heat: 'WARM', territory: 4, discovered_at: '2026-03-24T12:00:00Z' },
+      { id: 76, company_name: 'L3Harris', city: 'Los Angeles', state: 'CA', source: 'job', title: 'CNC Machinist', detail: 'Glassdoor \u2014 Defense electronics CNC machinist.', heat: 'HOT', territory: 4, discovered_at: '2026-03-24T06:00:00Z' },
+      { id: 77, company_name: 'Prime Machine Inc.', city: 'Salt Lake City', state: 'UT', source: 'job', title: 'CNC Machinist', detail: 'Glassdoor \u2014 Precision CNC machining shop in SLC.', heat: 'WARM', territory: 5, discovered_at: '2026-03-24T12:00:00Z' },
+      { id: 78, company_name: 'JD Machine Corp.', city: 'Ogden', state: 'UT', source: 'job', title: 'CNC Machinist', detail: 'Indeed \u2014 Defense/aerospace CNC machining. Major Utah shop.', heat: 'HOT', territory: 5, discovered_at: '2026-03-23T12:00:00Z' },
+      { id: 79, company_name: 'Boart Longyear', city: 'West Valley City', state: 'UT', source: 'job', title: 'CNC Machinist', detail: 'Indeed \u2014 Mining/drilling equipment manufacturer.', heat: 'WARM', territory: 5, discovered_at: '2026-03-23T06:00:00Z' },
+      { id: 80, company_name: 'ENTEK', city: 'Henderson', state: 'NV', source: 'job', title: 'CNC Machinist', detail: 'Glassdoor \u2014 Battery separator manufacturing.', heat: 'WARM', territory: 6, discovered_at: '2026-03-24T06:00:00Z' },
+      { id: 81, company_name: 'Aerospace Machine & Supply', city: 'Las Vegas', state: 'NV', source: 'job', title: 'CNC Machinist', detail: 'Glassdoor \u2014 Aerospace CNC precision machining.', heat: 'HOT', territory: 6, discovered_at: '2026-03-24T12:00:00Z' },
+      { id: 82, company_name: 'Davis Tool, Inc.', city: 'Portland', state: 'OR', source: 'job', title: 'CNC Machinist', detail: 'Glassdoor \u2014 Precision machining job shop in Portland.', heat: 'WARM', territory: 1, discovered_at: '2026-03-24T06:00:00Z' },
+      { id: 83, company_name: 'Van\'s Aircraft, Inc.', city: 'Aurora', state: 'OR', source: 'job', title: 'CNC Machinist', detail: 'Glassdoor \u2014 Kit aircraft manufacturer. CNC machining for airframe parts.', heat: 'WARM', territory: 1, discovered_at: '2026-03-23T12:00:00Z' },
+      { id: 84, company_name: 'Arnprior Aerospace Portland', city: 'Portland', state: 'OR', source: 'job', title: 'CNC Machinist', detail: 'Glassdoor \u2014 Aerospace precision machining.', heat: 'HOT', territory: 1, discovered_at: '2026-03-24T06:00:00Z' },
+
+      // Marketplace — verified from Machinio search results March 2026
+      { id: 60, company_name: 'Machinio \u2014 Mazak VCC 5X 20K', city: '', state: 'CA', source: 'marketplace', title: 'Mazak VCC 5X 20K \u2014 5-Axis Machining Center for Sale', detail: 'Machinio.com \u2014 Used Mazak 5-axis VMC listed in California. Seller upgrading \u2014 conquest opportunity.', heat: 'WARM', territory: 4, discovered_at: '2026-03-22T08:00:00Z' },
+      { id: 61, company_name: "Machinio \u2014 Turner's Machinery", city: 'Fillmore', state: 'CA', source: 'marketplace', title: 'Mazak Power Center V-12 for Sale \u2014 $383/mo', detail: "Machinio.com \u2014 Turner's Machinery (Fillmore, CA). 2003-2011 Mazak Power Center V-12 VMC.", heat: 'WARM', territory: 4, discovered_at: '2026-03-21T08:00:00Z' },
+      { id: 62, company_name: 'Machinio \u2014 Okuma GENOS M560-V', city: 'Los Angeles', state: 'CA', source: 'marketplace', title: 'Okuma GENOS M560-V for Sale \u2014 Los Angeles', detail: 'Machinio.com \u2014 Okuma GENOS M560 with OSP-P300MA, Renishaw Probe, 1000 PSI TSC. Trusted seller in LA.', heat: 'HOT', territory: 4, discovered_at: '2026-03-23T08:00:00Z' },
+      { id: 63, company_name: 'Machinio \u2014 DMG Mori DMU 50', city: 'Santa Ana', state: 'CA', source: 'marketplace', title: 'DMG Mori DMU 50 5-Axis for Sale \u2014 Santa Ana', detail: 'Machinio.com \u2014 DMG Mori DMU 50, Siemens control, 5-axis, 14000 RPM. Shop selling competitor machine.', heat: 'HOT', territory: 4, discovered_at: '2026-03-22T08:00:00Z' },
+      { id: 64, company_name: 'Machinio \u2014 DMG Mori CMX 1100V', city: '', state: 'CA', source: 'marketplace', title: 'DMG Mori CMX1100V for Sale \u2014 $2,531/mo', detail: 'Machinio.com \u2014 2019 DMG Mori CMX1100V, 21hp, 12k RPM, CT40, Slimline Control. California listing.', heat: 'WARM', territory: 4, discovered_at: '2026-03-21T08:00:00Z' },
+      { id: 65, company_name: 'Machinio \u2014 Mazak Nexus 410A', city: '', state: 'CA', source: 'marketplace', title: 'Mazak Nexus 410A for Sale \u2014 1200 Hours', detail: 'Machinio.com \u2014 Low-hour Mazak Nexus 410A with Mazatrol 640M CNC. California listing.', heat: 'WARM', territory: 4, discovered_at: '2026-03-20T08:00:00Z' },
     ]);
   }
 
@@ -194,6 +227,14 @@ function getMockData(endpoint) {
       { id: 7, company_name: 'Radian Weapons Inc', territory: 1, status: 'new', score: 45, heat: 'WARM', assigned_rep: '', sources: ['job'], created_at: '2026-03-24' },
       { id: 8, company_name: 'Northwest Machine Works', territory: 1, status: 'engaged', score: 70, heat: 'WARM', assigned_rep: 'Territory 1 Rep', sources: ['defense'], created_at: '2026-03-20' },
       { id: 9, company_name: 'Astronics PECO', territory: 1, status: 'contacted', score: 55, heat: 'WARM', assigned_rep: 'Territory 1 Rep', sources: ['defense'], created_at: '2026-03-18' },
+      { id: 10, company_name: 'Vigor Marine LLC', territory: 1, status: 'new', score: 85, heat: 'HOT', assigned_rep: '', sources: ['defense'], created_at: '2026-03-24', notes: '$17.9M shipyard contract. Fabrication/CNC machining capacity needed.' },
+      { id: 11, company_name: 'Boeing Co.', territory: 2, status: 'new', score: 90, heat: 'HOT', assigned_rep: '', sources: ['defense', 'job'], created_at: '2026-03-24', notes: '$38.6M P-8A contract + hiring CNC machinists at Auburn. Multi-signal.' },
+      { id: 12, company_name: 'Fluke Electronics Corp.', territory: 2, status: 'new', score: 80, heat: 'HOT', assigned_rep: '', sources: ['defense'], created_at: '2026-03-24', notes: '$22.5M calibrator production contract. Everett, WA. Manufacturing growth.' },
+      { id: 13, company_name: 'Hadrian Automation Inc.', territory: 4, status: 'new', score: 95, heat: 'HOT', assigned_rep: '', sources: ['defense'], created_at: '2026-03-24', notes: '$39.2M defense manufacturing automation. Torrance, CA. CNC automation focus.' },
+      { id: 14, company_name: 'L3Harris Interstate Electronics', territory: 4, status: 'new', score: 85, heat: 'HOT', assigned_rep: '', sources: ['defense', 'job'], created_at: '2026-03-24', notes: '$77.8M tracking mount contract + hiring CNC machinists. Multi-signal.' },
+      { id: 15, company_name: 'JD Machine Corp.', territory: 5, status: 'new', score: 80, heat: 'HOT', assigned_rep: '', sources: ['job'], created_at: '2026-03-24', notes: 'Major Utah defense/aerospace CNC shop hiring machinists.' },
+      { id: 16, company_name: 'Saxon Aerospace', territory: 2, status: 'new', score: 75, heat: 'HOT', assigned_rep: '', sources: ['job'], created_at: '2026-03-24', notes: 'Seattle aerospace CNC machinist position. Growing shop.' },
+      { id: 17, company_name: 'Aerospace Machine & Supply', territory: 6, status: 'new', score: 75, heat: 'HOT', assigned_rep: '', sources: ['job'], created_at: '2026-03-24', notes: 'Las Vegas aerospace CNC shop hiring. Nevada conquest opportunity.' },
     ]);
   }
 
