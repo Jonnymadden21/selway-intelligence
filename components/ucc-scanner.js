@@ -33,34 +33,6 @@ async function renderUCCScanner(container) {
   trinityPanel.appendChild(buildTable(EDA_TRINITY, 'trinity'));
   container.appendChild(trinityPanel);
 
-  // === OREGON SODA API SECTION ===
-  var oregonPanel = el('div', { className: 'panel', style: { marginBottom: '24px' } });
-  oregonPanel.appendChild(el('div', { className: 'panel-header', style: { background: 'var(--ucc-bg)' } }, [
-    el('span', { className: 'panel-title', style: { color: 'var(--ucc)' } }, 'Oregon Secretary of State \u2014 SODA API Direct'),
-    el('a', { className: 'panel-action', href: 'https://data.oregon.gov/business/UCC-List-of-Filings-Entered-Last-Month/snfi-f79b', target: '_blank' }, 'API Link \u2192'),
-  ]));
-  var uccFilings = await getUCC();
-  var uccTable = el('table', { className: 'data-table' });
-  var uccThead = el('thead');
-  var uccHR = el('tr');
-  ['Company', 'Location', 'File #', 'Filed', 'Secured Party', 'Competitor'].forEach(function(h) { uccHR.appendChild(el('th', {}, h)); });
-  uccThead.appendChild(uccHR);
-  uccTable.appendChild(uccThead);
-  var uccTbody = el('tbody');
-  uccFilings.forEach(function(f) {
-    var row = el('tr');
-    row.appendChild(el('td', { style: { fontWeight: '600', color: 'var(--text-primary)' } }, f.company_name));
-    row.appendChild(el('td', {}, (f.city || '') + ', ' + f.state));
-    row.appendChild(el('td', { style: { fontFamily: 'monospace', fontSize: '11px' } }, f.file_number || '\u2014'));
-    row.appendChild(el('td', {}, f.filing_date || '\u2014'));
-    row.appendChild(el('td', { style: { color: 'var(--ucc)', fontWeight: '500' } }, f.secured_party));
-    row.appendChild(el('td', {}, f.is_competitor ? el('span', { className: 'tag tag-hot' }, 'YES') : el('span', { className: 'tag tag-cool' }, 'NO')));
-    uccTbody.appendChild(row);
-  });
-  uccTable.appendChild(uccTbody);
-  oregonPanel.appendChild(uccTable);
-  container.appendChild(oregonPanel);
-
   // === STATE DATABASE LINKS ===
   var linksPanel = el('div', { className: 'panel' });
   linksPanel.appendChild(el('div', { className: 'panel-header' }, [el('span', { className: 'panel-title' }, 'Data Sources')]));
@@ -118,8 +90,8 @@ async function renderUCCScanner(container) {
     var thead = el('thead');
     var headerRow = el('tr');
     var cols = type === 'conquest'
-      ? ['Date', 'Company', 'Location', 'Contact', 'Phone', 'Competitor Brand', 'Model', 'Industry']
-      : ['Date', 'Company', 'Location', 'Contact', 'Phone', 'Haas Model', 'Description', 'Industry'];
+      ? ['Date', 'Company', 'Location', 'Contact', 'Phone', 'Competitor Brand', 'Model', 'Sold/Financed By', 'Industry']
+      : ['Date', 'Company', 'Location', 'Contact', 'Phone', 'Haas Model', 'Description', 'Sold/Financed By', 'Industry'];
     cols.forEach(function(h) { headerRow.appendChild(el('th', {}, h)); });
     thead.appendChild(headerRow);
     table.appendChild(thead);
@@ -143,6 +115,7 @@ async function renderUCCScanner(container) {
         row.appendChild(el('td', { style: { fontSize: '11px', color: 'var(--teal)', fontWeight: '600' } }, 'HAAS ' + (r.model || '')));
         row.appendChild(el('td', { style: { fontSize: '11px' } }, r.description || '\u2014'));
       }
+      row.appendChild(el('td', { style: { fontSize: '10px', color: 'var(--ucc)', fontWeight: '500' } }, r.secured_party || '\u2014'));
       row.appendChild(el('td', { style: { fontSize: '10px', color: 'var(--text-muted)', maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }, r.industry || '\u2014'));
       tbody.appendChild(row);
     });

@@ -66,7 +66,15 @@ function createLead(signalId) {
 }
 
 function updateLead(id, data) {
-  return fetchAPI(`/api/leads/${id}`, {
+  if (!API_BASE) {
+    // Persist status changes locally until backend is connected
+    var overrides = JSON.parse(localStorage.getItem('lead_overrides') || '{}');
+    overrides[id] = overrides[id] || {};
+    Object.assign(overrides[id], data);
+    localStorage.setItem('lead_overrides', JSON.stringify(overrides));
+    return Promise.resolve({ id: id, status: 'updated' });
+  }
+  return fetchAPI('/api/leads/' + id, {
     method: 'PATCH',
     body: JSON.stringify(data),
   });
@@ -232,7 +240,7 @@ function getMockData(endpoint) {
   }
 
   if (endpoint.startsWith('/api/leads')) {
-    return Promise.resolve([
+    var leadData = [
       // === CONQUEST TARGETS (competitor machine owners) ===
       { id: 1, company_name: 'Stubborn Mule Manufacturing', territory: 1, status: 'new', score: 95, heat: 'HOT', assigned_rep: '', sources: ['ucc'], created_at: '2026-03-24', recommendation: 'CONQUEST: Mazak owner. Pitch Haas VF-series at 30-40% less. Trinity Automation candidate for lights-out production. SWAT accessories for immediate tooling needs.', notes: 'Confirmed Mazak purchase via UCC filing #94408174. Grants Pass, OR.' },
       { id: 2, company_name: 'Compass Precision / Strom Mfg', territory: 1, status: 'new', score: 85, heat: 'HOT', assigned_rep: '', sources: ['marketplace'], created_at: '2026-03-24', recommendation: 'CONQUEST: Just bought new Mazak VTC300C (Nov 2025). Multi-location company with West Coast shop in North Plains, OR. Pitch Haas as complementary workhorse + Trinity Automation for their expanding capacity.', notes: 'Compass Precision network buying Mazak. Source: compassprecision.com' },
@@ -264,7 +272,15 @@ function getMockData(endpoint) {
       { id: 18, company_name: 'Northrop Grumman', territory: 5, status: 'new', score: 75, heat: 'HOT', assigned_rep: '', sources: ['defense', 'job'], created_at: '2026-03-24', recommendation: 'MULTI-SIGNAL: $9.8M contract at Magna + $414M via USU/SDL + hiring machinists in SLC, Corinne, Promontory ($51K-$101K). Target their Tier 1/2 suppliers with Haas. NG supply chain is the play.', notes: 'Multiple UT locations. Source: defense.gov, Northrop Grumman Careers' },
       { id: 19, company_name: 'General Atomics', territory: 4, status: 'new', score: 75, heat: 'HOT', assigned_rep: '', sources: ['defense', 'job'], created_at: '2026-03-24', recommendation: 'MULTI-SIGNAL: $10.2M EMALS contract + hiring Sr. CNC Programmer ($65K-$100K) and machinists in Poway/San Diego. Pitch Haas VF-series to their machine shop. Matsuura for their 5-axis needs.', notes: 'Poway/San Diego, CA. Source: defense.gov, Snagajob' },
       { id: 20, company_name: 'Williams International', territory: 5, status: 'new', score: 55, heat: 'WARM', assigned_rep: '', sources: ['job'], created_at: '2026-03-24', recommendation: 'WARM: Jet engine components manufacturer hiring CNC machinists across all shifts in Ogden, UT. Pitch Haas ST-series for turning, VF-series for milling engine parts.', notes: 'Source: Glassdoor' },
-    ]);
+    ];
+    // Apply localStorage overrides (status changes persist locally)
+    var overrides = JSON.parse(localStorage.getItem('lead_overrides') || '{}');
+    leadData.forEach(function(lead) {
+      if (overrides[lead.id]) {
+        Object.assign(lead, overrides[lead.id]);
+      }
+    });
+    return Promise.resolve(leadData);
   }
 
   if (endpoint.startsWith('/api/competitors')) {

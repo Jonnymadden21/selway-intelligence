@@ -122,7 +122,7 @@ async function renderSignalsTab(container) {
       var table = el('table', { className: 'data-table' });
       var thead = el('thead');
       var headerRow = el('tr');
-      ['', 'Company', 'Signal', 'Source', 'Heat', 'Territory', 'Date', 'Action'].forEach(function(h) {
+      ['', 'Company', 'Signal', 'Source', 'Heat', 'Territory', 'Published', 'Link', 'Action'].forEach(function(h) {
         headerRow.appendChild(el('th', {}, h));
       });
       thead.appendChild(headerRow);
@@ -141,7 +141,14 @@ async function renderSignalsTab(container) {
         row.appendChild(el('td', {}, el('span', { className: 'tag tag-' + sig.source }, sig.source.toUpperCase())));
         row.appendChild(el('td', {}, el('span', { className: 'tag tag-' + sig.heat.toLowerCase() }, sig.heat)));
         row.appendChild(el('td', {}, el('span', { className: 'signal-territory' }, TERRITORIES[sig.territory] || 'All')));
-        row.appendChild(el('td', { style: { fontSize: '11px', color: 'var(--text-muted)' } }, timeAgo(sig.discovered_at)));
+        row.appendChild(el('td', { style: { fontSize: '11px', color: 'var(--text-muted)', whiteSpace: 'nowrap' } }, sig.published || timeAgo(sig.discovered_at)));
+
+        // Source link
+        if (sig.source_url) {
+          row.appendChild(el('td', {}, el('a', { href: sig.source_url, target: '_blank', style: { color: 'var(--teal)', textDecoration: 'none', fontSize: '11px', fontWeight: '500' } }, 'View \u2192')));
+        } else {
+          row.appendChild(el('td', { style: { color: 'var(--text-faint)', fontSize: '11px' } }, '\u2014'));
+        }
 
         var actionBtn = el('button', { className: 'btn btn-primary btn-sm' }, '+ Lead');
         actionBtn.addEventListener('click', async function() {

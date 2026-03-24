@@ -84,21 +84,30 @@ async function renderDashboard(container) {
 
     signalList.forEach(function(sig) {
       const src = SOURCE_ICONS[sig.source] || { icon: '\u{2753}', bg: '#f3f4f6' };
-      const item = el('div', { className: 'signal-item' }, [
-        el('div', { className: 'signal-icon', style: { background: src.bg } }, src.icon),
-        el('div', { className: 'signal-body' }, [
-          el('div', { className: 'signal-company' }, [
-            el('span', {}, sig.company_name),
-            el('span', { className: 'tag tag-' + sig.heat.toLowerCase() }, sig.heat),
-          ]),
-          el('div', { className: 'signal-detail', title: sig.detail }, sig.detail),
-          el('div', { className: 'signal-meta' }, [
-            el('span', { className: 'tag tag-' + sig.source }, sig.source.toUpperCase()),
-            sig.territory ? el('span', { className: 'signal-territory' }, TERRITORIES[sig.territory] || 'Unknown') : null,
-            el('span', { className: 'signal-time' }, timeAgo(sig.discovered_at)),
-          ]),
+      var metaItems = [
+        el('span', { className: 'tag tag-' + sig.source }, sig.source.toUpperCase()),
+        sig.territory ? el('span', { className: 'signal-territory' }, TERRITORIES[sig.territory] || 'Unknown') : null,
+        el('span', { className: 'signal-time' }, sig.published || timeAgo(sig.discovered_at)),
+      ];
+      if (sig.source_url) {
+        metaItems.push(el('a', { href: sig.source_url, target: '_blank', style: { fontSize: '10px', color: 'var(--teal)', textDecoration: 'none', fontWeight: '500' } }, 'Source \u2192'));
+      }
+      const item = el('div', { className: 'signal-item' });
+      if (sig.source_url) {
+        item.style.cursor = 'pointer';
+        item.addEventListener('click', function(e) {
+          if (e.target.tagName !== 'A') window.open(sig.source_url, '_blank');
+        });
+      }
+      item.appendChild(el('div', { className: 'signal-icon', style: { background: src.bg } }, src.icon));
+      item.appendChild(el('div', { className: 'signal-body' }, [
+        el('div', { className: 'signal-company' }, [
+          el('span', {}, sig.company_name),
+          el('span', { className: 'tag tag-' + sig.heat.toLowerCase() }, sig.heat),
         ]),
-      ]);
+        el('div', { className: 'signal-detail', title: sig.detail }, sig.detail),
+        el('div', { className: 'signal-meta' }, metaItems),
+      ]));
       panel.appendChild(item);
     });
 
