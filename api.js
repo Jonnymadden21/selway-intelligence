@@ -99,12 +99,16 @@ function triggerRefresh(source) {
   return fetchAPI(`/api/refresh/${source}`, { method: 'POST' });
 }
 
-// ---- Live Data (refreshed 2026-03-24) ----
-// Data sourced from: Oregon SOS UCC filings, Google News RSS, Glassdoor/Indeed/ZipRecruiter job boards,
-// defense.gov contracts, Machinio marketplace, construction/permit news
+// ---- Live Data Engine (uses data.js) ----
+// All signals sourced from: Oregon SOS SODA API, defense.gov, Google News RSS,
+// Glassdoor/Indeed/ZipRecruiter/LinkedIn, Machinio, CNCMachines.com, Construction Dive, trade pubs
 
 function getMockData(endpoint) {
   if (endpoint.startsWith('/api/stats')) {
+    return Promise.resolve(computeStats());
+  }
+
+  if (endpoint.startsWith('/api/stats_DISABLED')) {
     return Promise.resolve({
       total_signals: 156,
       total_signals_today: 31,
@@ -129,6 +133,17 @@ function getMockData(endpoint) {
   }
 
   if (endpoint.startsWith('/api/signals')) {
+    // Filter from LIVE_SIGNALS (data.js)
+    var params = new URLSearchParams(endpoint.split('?')[1] || '');
+    var filtered = LIVE_SIGNALS.slice();
+    if (params.get('source')) filtered = filtered.filter(function(s) { return s.source === params.get('source'); });
+    if (params.get('territory')) filtered = filtered.filter(function(s) { return s.territory === parseInt(params.get('territory')); });
+    if (params.get('heat')) filtered = filtered.filter(function(s) { return s.heat === params.get('heat'); });
+    var limit = parseInt(params.get('limit') || '50');
+    return Promise.resolve(filtered.slice(0, limit));
+  }
+
+  if (endpoint.startsWith('/api/signals_OLD')) {
     return Promise.resolve([
       // UCC Filings — confirmed from Oregon SOS data
       { id: 1, company_name: 'Stubborn Mule Manufacturing', city: 'Grants Pass', state: 'OR', source: 'ucc', title: 'UCC Filing \u2014 MAZAK CORPORATION', detail: 'Secured Party: MAZAK CORPORATION (Florence, KY). Filed 02/02/2026, File #94408174, Lapses 02/02/2031. Confirmed competitor purchase.', heat: 'HOT', territory: 1, discovered_at: '2026-03-24T06:00:00Z' },
