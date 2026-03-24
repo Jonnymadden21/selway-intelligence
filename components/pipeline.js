@@ -67,6 +67,13 @@ async function renderPipeline(container) {
         card.appendChild(el('div', { style: { fontSize: '10px', color: 'var(--text-faint)', marginTop: '6px' } }, lead.assigned_rep));
       }
 
+      // Product recommendation
+      if (lead.recommendation) {
+        card.appendChild(el('div', {
+          style: { marginTop: '8px', padding: '8px', background: 'var(--teal-bg)', border: '1px solid rgba(0,140,154,0.2)', borderRadius: '6px', fontSize: '10px', color: 'var(--text-secondary)', lineHeight: '1.5' }
+        }, lead.recommendation));
+      }
+
       // Action buttons
       var actions = el('div', { style: { marginTop: '10px', display: 'flex', gap: '6px', flexWrap: 'wrap' } });
       var stageIndex = stages.findIndex(function(s) { return s.key === stage.key; });
