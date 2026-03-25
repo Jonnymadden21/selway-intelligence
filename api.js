@@ -143,7 +143,7 @@ function getMockData(endpoint) {
   if (endpoint.startsWith('/api/signals')) {
     // Filter from LIVE_SIGNALS (data.js)
     var params = new URLSearchParams(endpoint.split('?')[1] || '');
-    var filtered = LIVE_SIGNALS.slice();
+    var filtered = LIVE_SIGNALS.filter(function(s) { return s.source !== 'marketplace'; });
     if (params.get('source')) filtered = filtered.filter(function(s) { return s.source === params.get('source'); });
     if (params.get('territory')) filtered = filtered.filter(function(s) { return s.territory === parseInt(params.get('territory')); });
     if (params.get('heat')) filtered = filtered.filter(function(s) { return s.heat === params.get('heat'); });

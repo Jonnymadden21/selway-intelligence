@@ -34,7 +34,7 @@ async function renderSignalsTab(container) {
     var bar = el('div', { style: { display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap', alignItems: 'center' } });
 
     // Source filters
-    var sources = ['All', 'UCC', 'Job', 'Defense', 'News', 'Permit', 'Marketplace'];
+    var sources = ['All', 'UCC', 'Defense', 'News', 'Permit', 'Job'];
     sources.forEach(function(s) {
       var btn = el('button', { className: 'filter-btn' + (s === 'All' ? ' active' : '') }, s);
       btn.addEventListener('click', function() {
