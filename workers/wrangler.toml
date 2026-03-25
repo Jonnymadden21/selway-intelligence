@@ -12,7 +12,7 @@ crons = ["0 13 * * *", "0 19 * * *", "0 0 * * *"]
 [[d1_databases]]
 binding = "DB"
 database_name = "selway-intel"
-database_id = "" # filled after: npx wrangler d1 create selway-intel
+database_id = "050e74da-d771-46fd-9e49-655e4a141fc3"
 
 [vars]
 FRONTEND_URL = "https://jonnymadden21.github.io/selway-intelligence"
