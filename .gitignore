@@ -1,2 +1,10 @@
 .env
 *.env
+node_modules/
+eda-*.png
+eda-*.html
+eda-*.txt
+*.jsonl
+eda-scraper.js
+eda-full-scraper.js
+eda-export.js
