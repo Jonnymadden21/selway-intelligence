@@ -15,12 +15,11 @@ async function renderUCCScanner(container) {
     { label: 'Brand', key: function(r) { return r.brand || 'HAAS'; } },
     { label: 'Model', key: function(r) { return r.model || ''; } },
     { label: 'Description', key: function(r) { return r.description || ''; } },
-    { label: 'New/Used', key: function(r) { return getCondition(r); } },
-    { label: 'Year', key: function(r) { return r.year || ''; } },
     { label: 'Company', key: function(r) { return r.company || ''; } },
     { label: 'Contact', key: function(r) { return r.contact || ''; } },
     { label: 'Phone', key: function(r) { return r.phone || ''; } },
     { label: 'Date', key: function(r) { return r.ucc_date || ''; } },
+    { label: 'New/Used', key: function(r) { return getCondition(r); } },
   ];
 
   // Header
@@ -41,27 +40,6 @@ async function renderUCCScanner(container) {
   mainPanel.appendChild(buildTable(getFilteredData()));
   container.appendChild(mainPanel);
 
-  // Data source links
-  var linksPanel = el('div', { className: 'panel' });
-  linksPanel.appendChild(el('div', { className: 'panel-header' }, [el('span', { className: 'panel-title' }, 'Data Sources')]));
-  var linkGrid = el('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', padding: '16px' } });
-  [
-    { name: 'EDA Online', url: 'https://online.edadata.com/', desc: 'All 50 states UCC + contacts', status: 'Primary' },
-    { name: 'Oregon SODA API', url: 'https://data.oregon.gov/business/UCC-List-of-Filings-Entered-Last-Month/snfi-f79b', desc: 'Monthly bulk data', status: 'Automated' },
-    { name: 'Washington SOS', url: 'https://www.sos.wa.gov/ucc', desc: 'Manual search', status: 'Manual' },
-    { name: 'California SOS', url: 'https://bizfileonline.sos.ca.gov/search/ucc', desc: 'Manual search', status: 'Manual' },
-    { name: 'Utah SOS', url: 'https://secure.utah.gov/uccsearch', desc: 'Manual search', status: 'Manual' },
-    { name: 'Nevada SOS', url: 'https://www.nvsos.gov/sosentitysearch/UCCSearch.aspx', desc: 'Manual search', status: 'Manual' },
-  ].forEach(function(l) {
-    var card = el('div', { style: { background: 'var(--bg-hover)', border: '1px solid var(--border)', borderRadius: '8px', padding: '12px', cursor: 'pointer' } });
-    card.addEventListener('click', function() { window.open(l.url, '_blank'); });
-    card.appendChild(el('div', { style: { fontWeight: '600', fontSize: '13px', marginBottom: '4px' } }, l.name));
-    card.appendChild(el('div', { style: { fontSize: '11px', color: 'var(--text-muted)' } }, l.desc));
-    card.appendChild(el('div', { style: { fontSize: '10px', color: 'var(--teal)', fontWeight: '600', marginTop: '4px' } }, l.status));
-    linkGrid.appendChild(card);
-  });
-  linksPanel.appendChild(linkGrid);
-  container.appendChild(linksPanel);
 
   // === HELPERS ===
 
@@ -177,10 +155,6 @@ async function renderUCCScanner(container) {
       row.appendChild(el('td', { style: { fontSize: '11px', fontWeight: '500' } }, r.model || '\u2014'));
       // Description
       row.appendChild(el('td', { style: { fontSize: '10px', color: 'var(--text-muted)', maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }, r.description || '\u2014'));
-      // New/Used
-      row.appendChild(el('td', { style: condStyle }, condition));
-      // Year
-      row.appendChild(el('td', { style: { fontSize: '10px' } }, r.year || '\u2014'));
       // Company
       row.appendChild(el('td', { style: { fontWeight: '600', color: 'var(--text-primary)', fontSize: '11px' } }, r.company));
       // Contact
@@ -193,6 +167,8 @@ async function renderUCCScanner(container) {
       }
       // Date
       row.appendChild(el('td', { style: { fontSize: '10px', whiteSpace: 'nowrap' } }, r.ucc_date));
+      // New/Used (far right)
+      row.appendChild(el('td', { style: condStyle }, condition));
 
       tbody.appendChild(row);
     });
