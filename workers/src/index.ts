@@ -1,4 +1,6 @@
-// Selway Intelligence — Main Worker Entry Point
+// Selway Market Data — Main Worker Entry Point
+import { runAllCollectors } from './collectors';
+import { sendDigest } from './email';
 
 export interface Env {
   DB: D1Database;
@@ -79,6 +81,9 @@ export default {
         const body = await request.json();
         return await handleUCCUpload(body, env);
       }
+      if (path === '/api/test-email' && request.method === 'POST') {
+        return await handleTestEmail(env);
+      }
       if (path === '/api/competitors' && request.method === 'GET') {
         return await handleCompetitors(env);
       }
@@ -98,23 +103,13 @@ export default {
   },
 
   async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext): Promise<void> {
-    // Determine cycle based on cron time
     const hour = new Date(event.scheduledTime).getUTCHours();
     let cycle = 'morning';
-    if (hour >= 18) cycle = 'noon';
+    if (hour >= 18 && hour < 23) cycle = 'noon';
     else if (hour >= 23 || hour === 0) cycle = 'afternoon';
 
-    console.log(`Cron triggered: ${cycle} cycle at ${new Date(event.scheduledTime).toISOString()}`);
-
-    // TODO: Wire up collectors and processing engine
-    // For now, log the trigger
-    try {
-      await env.DB.prepare(
-        'INSERT INTO refresh_log (cycle, source, signals_found) VALUES (?, ?, ?)'
-      ).bind(cycle, 'cron', 0).run();
-    } catch (err) {
-      console.error('Cron handler error:', err);
-    }
+    console.log('Cron triggered: ' + cycle + ' at ' + new Date(event.scheduledTime).toISOString());
+    await doRefresh(cycle, env);
   },
 };
 
@@ -328,12 +323,108 @@ async function handleTriggerRefresh(source: string, env: Env): Promise<Response>
     return jsonResponse({ error: 'Rate limited. Try again later.' }, 429, env);
   }
 
-  await env.DB.prepare(
-    'INSERT INTO refresh_log (cycle, source, signals_found) VALUES (?, ?, ?)'
-  ).bind('manual', source, 0).run();
+  const result = await doRefresh('manual', env);
+  return jsonResponse(result, 200, env);
+}
 
-  // TODO: Wire up actual collector dispatch
-  return jsonResponse({ status: 'triggered', source }, 200, env);
+// Core refresh function — runs collectors, stores signals, sends email
+async function doRefresh(cycle: string, env: Env): Promise<{signals_found: number, email_sent: boolean}> {
+  let signalsFound = 0;
+  let emailSent = false;
+  let emailError = '';
+
+  try {
+    // Run all collectors
+    const signals = await runAllCollectors();
+    signalsFound = signals.length;
+    console.log('Collectors returned ' + signals.length + ' signals');
+
+    // Send email digest first (before DB ops that might fail)
+    if (env.RESEND_API_KEY && signals.length > 0) {
+      try {
+        emailSent = await sendDigest(signals, cycle, env.RESEND_API_KEY, 'jonnymadden21@icloud.com');
+      } catch (emailErr: any) {
+        emailError = String(emailErr?.message || emailErr);
+      }
+    }
+
+    // Store new signals in D1 (deduplicate by title)
+    for (const s of signals) {
+      try {
+        const existing = await env.DB.prepare(
+          'SELECT id FROM signals WHERE title = ? AND source = ?'
+        ).bind(s.title, s.source).first();
+
+        if (!existing) {
+          await env.DB.prepare(
+            'INSERT OR IGNORE INTO companies (name, city, state, territory) VALUES (?, ?, ?, ?)'
+          ).bind(s.company_name, s.city, s.state, s.territory).run();
+
+          const company = await env.DB.prepare(
+            'SELECT id FROM companies WHERE name = ? AND state = ?'
+          ).bind(s.company_name, s.state).first<{id: number}>();
+
+          await env.DB.prepare(
+            'INSERT INTO signals (company_id, source, title, detail, url, heat, territory, refresh_cycle, source_url, published) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+          ).bind(
+            company?.id || null, s.source, s.title, s.detail, s.source_url,
+            s.heat, s.territory, cycle, s.source_url, s.published
+          ).run();
+        }
+      } catch (dbErr) {
+        console.error('DB insert error:', dbErr);
+      }
+    }
+
+    // Log refresh
+    await env.DB.prepare(
+      "INSERT INTO refresh_log (cycle, source, signals_found, completed_at) VALUES (?, ?, ?, datetime('now'))"
+    ).bind(cycle, 'all', signalsFound).run();
+
+  } catch (err) {
+    console.error('Refresh error:', err);
+    await env.DB.prepare(
+      "INSERT INTO refresh_log (cycle, source, signals_found, errors) VALUES (?, ?, ?, ?)"
+    ).bind(cycle, 'all', signalsFound, String(err)).run();
+  }
+
+  return { signals_found: signalsFound, email_sent: emailSent, email_error: emailError, cycle: cycle };
+}
+
+// Debug endpoint to test email directly
+async function handleTestEmail(env: Env): Promise<Response> {
+  const testSignals = [{
+    company_name: 'Test Signal', city: 'Portland', state: 'OR',
+    source: 'permit', title: 'Test: Selway Market Data Email Working',
+    detail: 'This is a test email from your Selway Market Data platform.',
+    heat: 'HOT', territory: 1, source_url: 'https://jonnymadden21.github.io/selway-intelligence/',
+    published: new Date().toISOString().split('T')[0],
+  }];
+
+  if (!env.RESEND_API_KEY) {
+    return jsonResponse({ error: 'No RESEND_API_KEY set' }, 500, env);
+  }
+
+  // Try sending and capture full error
+  try {
+    const resp = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + env.RESEND_API_KEY,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'Selway Market Data <onboarding@resend.dev>',
+        to: ['jonnymadden21@icloud.com'],
+        subject: 'Selway Market Data - Test Email',
+        html: '<h1>Test email working!</h1><p>Your automated refresh emails will look like this.</p>',
+      }),
+    });
+    const body = await resp.text();
+    return jsonResponse({ status: resp.status, ok: resp.ok, response: body }, resp.ok ? 200 : 500, env);
+  } catch (e) {
+    return jsonResponse({ error: String(e) }, 500, env);
+  }
 }
 
 // Territory assignment helper
