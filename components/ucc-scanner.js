@@ -9,7 +9,7 @@ async function renderUCCScanner(container) {
   // Header
   container.appendChild(el('div', { className: 'page-header' }, [
     el('div', {}, [
-      el('h1', {}, 'UCC / EDA Scanner'),
+      el('h1', {}, 'UCC / EDA Data'),
       el('p', {}, (EDA_CONQUEST.length + EDA_TRINITY.length) + ' filings from EDA (2026) \u2014 ' + EDA_CONQUEST.length + ' conquest targets + ' + EDA_TRINITY.length + ' Trinity opportunities'),
     ]),
     buildStateFilter(),
@@ -85,13 +85,28 @@ async function renderUCCScanner(container) {
     if (tc) tc.textContent = tf.length + ' filings';
   }
 
+  function getCondition(r) {
+    // Determine Used vs New based on UCC status and equipment year
+    var status = (r.ucc_status || '').toUpperCase();
+    var yr = parseInt(r.year) || 0;
+    var currentYr = 2026;
+    if (status === 'LEASE' || status === 'REFINANCE') return 'Used';
+    if (yr >= currentYr - 1) return 'New';
+    if (yr > 0 && yr < currentYr - 1) return 'Used';
+    // Check description for clues
+    var desc = (r.description || '').toUpperCase();
+    if (desc.includes('USED') || desc.includes('REFURB')) return 'Used';
+    if (desc.includes('NEW')) return 'New';
+    return yr > 0 ? (yr >= currentYr - 2 ? 'New' : 'Used') : '\u2014';
+  }
+
   function buildTable(data, type) {
     var table = el('table', { className: 'data-table' });
     var thead = el('thead');
     var headerRow = el('tr');
     var cols = type === 'conquest'
-      ? ['Location', 'Sold/Financed By', 'Brand', 'Model', 'Description', 'Company', 'Contact', 'Phone', 'Date']
-      : ['Location', 'Sold/Financed By', 'Haas Model', 'Description', 'Year', 'Company', 'Contact', 'Phone', 'Date'];
+      ? ['Location', 'Brand', 'Model', 'Description', 'New/Used', 'Company', 'Contact', 'Phone', 'Date']
+      : ['Location', 'Haas Model', 'Description', 'New/Used', 'Year', 'Company', 'Contact', 'Phone', 'Date'];
     cols.forEach(function(h) { headerRow.appendChild(el('th', {}, h)); });
     thead.appendChild(headerRow);
     table.appendChild(thead);
@@ -99,18 +114,25 @@ async function renderUCCScanner(container) {
     var tbody = el('tbody');
     data.forEach(function(r) {
       var row = el('tr');
-      // Location first
+      var condition = getCondition(r);
+      var condStyle = condition === 'New'
+        ? { fontSize: '10px', color: 'var(--permit)', fontWeight: '600' }
+        : condition === 'Used'
+          ? { fontSize: '10px', color: 'var(--warm)', fontWeight: '500' }
+          : { fontSize: '10px', color: 'var(--text-faint)' };
+
+      // Location
       row.appendChild(el('td', { style: { fontSize: '11px' } }, r.city + ', ' + r.state));
-      // Secured Party
-      row.appendChild(el('td', { style: { fontSize: '10px', color: 'var(--ucc)', fontWeight: '500' } }, r.secured_party || '\u2014'));
       // Equipment
       if (type === 'conquest') {
         row.appendChild(el('td', {}, el('span', { className: 'tag tag-hot', style: { fontSize: '9px' } }, r.brand)));
         row.appendChild(el('td', { style: { fontSize: '11px', fontWeight: '500' } }, r.model || '\u2014'));
         row.appendChild(el('td', { style: { fontSize: '10px', color: 'var(--text-muted)' } }, r.description || '\u2014'));
+        row.appendChild(el('td', { style: condStyle }, condition));
       } else {
         row.appendChild(el('td', { style: { fontSize: '11px', color: 'var(--teal)', fontWeight: '600' } }, 'HAAS ' + (r.model || '')));
         row.appendChild(el('td', { style: { fontSize: '10px', color: 'var(--text-muted)' } }, r.description || '\u2014'));
+        row.appendChild(el('td', { style: condStyle }, condition));
         row.appendChild(el('td', { style: { fontSize: '10px' } }, r.year || '\u2014'));
       }
       // Company/Contact

@@ -15,7 +15,7 @@ async function renderDashboard(container) {
   // Page header
   const header = el('div', { className: 'page-header' }, [
     el('div', {}, [
-      el('h1', {}, 'Intelligence Dashboard'),
+      el('h1', {}, 'Market Dashboard'),
       el('p', {}, getDateString() + ' \u2014 ' + getCycleName() + ' cycle'),
     ]),
     buildFilters(),
