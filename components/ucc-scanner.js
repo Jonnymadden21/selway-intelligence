@@ -90,8 +90,8 @@ async function renderUCCScanner(container) {
     var thead = el('thead');
     var headerRow = el('tr');
     var cols = type === 'conquest'
-      ? ['Date', 'Company', 'Location', 'Contact', 'Phone', 'Competitor Brand', 'Model', 'Sold/Financed By', 'Industry']
-      : ['Date', 'Company', 'Location', 'Contact', 'Phone', 'Haas Model', 'Description', 'Sold/Financed By', 'Industry'];
+      ? ['Location', 'Sold/Financed By', 'Brand', 'Model', 'Description', 'Company', 'Contact', 'Phone', 'Date']
+      : ['Location', 'Sold/Financed By', 'Haas Model', 'Description', 'Year', 'Company', 'Contact', 'Phone', 'Date'];
     cols.forEach(function(h) { headerRow.appendChild(el('th', {}, h)); });
     thead.appendChild(headerRow);
     table.appendChild(thead);
@@ -99,24 +99,30 @@ async function renderUCCScanner(container) {
     var tbody = el('tbody');
     data.forEach(function(r) {
       var row = el('tr');
-      row.appendChild(el('td', { style: { fontSize: '11px', whiteSpace: 'nowrap' } }, r.ucc_date));
-      row.appendChild(el('td', { style: { fontWeight: '600', color: 'var(--text-primary)', maxWidth: '200px' } }, r.company));
+      // Location first
       row.appendChild(el('td', { style: { fontSize: '11px' } }, r.city + ', ' + r.state));
+      // Secured Party
+      row.appendChild(el('td', { style: { fontSize: '10px', color: 'var(--ucc)', fontWeight: '500' } }, r.secured_party || '\u2014'));
+      // Equipment
+      if (type === 'conquest') {
+        row.appendChild(el('td', {}, el('span', { className: 'tag tag-hot', style: { fontSize: '9px' } }, r.brand)));
+        row.appendChild(el('td', { style: { fontSize: '11px', fontWeight: '500' } }, r.model || '\u2014'));
+        row.appendChild(el('td', { style: { fontSize: '10px', color: 'var(--text-muted)' } }, r.description || '\u2014'));
+      } else {
+        row.appendChild(el('td', { style: { fontSize: '11px', color: 'var(--teal)', fontWeight: '600' } }, 'HAAS ' + (r.model || '')));
+        row.appendChild(el('td', { style: { fontSize: '10px', color: 'var(--text-muted)' } }, r.description || '\u2014'));
+        row.appendChild(el('td', { style: { fontSize: '10px' } }, r.year || '\u2014'));
+      }
+      // Company/Contact
+      row.appendChild(el('td', { style: { fontWeight: '600', color: 'var(--text-primary)', fontSize: '11px' } }, r.company));
       row.appendChild(el('td', { style: { fontSize: '11px' } }, r.contact || '\u2014'));
       if (r.phone) {
         row.appendChild(el('td', {}, el('a', { href: 'tel:' + r.phone.replace(/[^0-9]/g, ''), style: { color: 'var(--teal)', textDecoration: 'none', fontSize: '11px' } }, r.phone)));
       } else {
         row.appendChild(el('td', { style: { color: 'var(--text-faint)', fontSize: '11px' } }, '\u2014'));
       }
-      if (type === 'conquest') {
-        row.appendChild(el('td', {}, el('span', { className: 'tag tag-hot', style: { fontSize: '9px' } }, r.brand)));
-        row.appendChild(el('td', { style: { fontSize: '11px' } }, r.model || '\u2014'));
-      } else {
-        row.appendChild(el('td', { style: { fontSize: '11px', color: 'var(--teal)', fontWeight: '600' } }, 'HAAS ' + (r.model || '')));
-        row.appendChild(el('td', { style: { fontSize: '11px' } }, r.description || '\u2014'));
-      }
-      row.appendChild(el('td', { style: { fontSize: '10px', color: 'var(--ucc)', fontWeight: '500' } }, r.secured_party || '\u2014'));
-      row.appendChild(el('td', { style: { fontSize: '10px', color: 'var(--text-muted)', maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }, r.industry || '\u2014'));
+      // Date
+      row.appendChild(el('td', { style: { fontSize: '10px', whiteSpace: 'nowrap' } }, r.ucc_date));
       tbody.appendChild(row);
     });
     table.appendChild(tbody);
