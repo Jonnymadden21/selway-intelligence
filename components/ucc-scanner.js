@@ -17,6 +17,7 @@ async function renderUCCScanner(container) {
     { label: 'Description', key: function(r) { return r.description || ''; } },
     { label: 'Company', key: function(r) { return r.company || ''; } },
     { label: 'Contact', key: function(r) { return r.contact || ''; } },
+    { label: 'Title', key: function(r) { return r.title || ''; } },
     { label: 'Phone', key: function(r) { return r.phone || ''; } },
     { label: 'Date', key: function(r) { return r.ucc_date || ''; } },
     { label: 'New/Used', key: function(r) { return getCondition(r); } },
@@ -159,6 +160,8 @@ async function renderUCCScanner(container) {
       row.appendChild(el('td', { style: { fontWeight: '600', color: 'var(--text-primary)', fontSize: '11px' } }, r.company));
       // Contact
       row.appendChild(el('td', { style: { fontSize: '11px' } }, r.contact || '\u2014'));
+      // Title
+      row.appendChild(el('td', { style: { fontSize: '10px', color: 'var(--text-secondary)', fontStyle: r.title ? 'normal' : 'inherit' } }, r.title || '\u2014'));
       // Phone
       if (r.phone) {
         row.appendChild(el('td', {}, el('a', { href: 'tel:' + r.phone.replace(/[^0-9]/g, ''), style: { color: 'var(--teal)', textDecoration: 'none', fontSize: '11px' } }, r.phone)));
